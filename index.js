@@ -34,6 +34,22 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
+app.post("/api/persons", (request, response) => {
+  /* 
+  1000 is arbitrary "large" number to use a big enough range for random values so likelihood of creating duplicate ids is small
+  can probably make a helper function to generate id although code is a single Math.random call
+  */
+  const id = Math.floor(Math.random() * 1000);
+  const person = {
+    id,
+    name: request.body.name,
+    number: request.body.number,
+  };
+  persons = persons.concat(person);
+
+  response.json(person);
+});
+
 app.get("/info", (request, response) => {
   response.send(
     `<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`
