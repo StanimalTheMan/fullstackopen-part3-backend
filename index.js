@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 
+app.use(express.json());
+
 let persons = [
   { id: 1, name: "Arto Hellas", number: "040-123456" },
   { id: 2, name: "Ada Lovelace", number: "39-44-5323523" },
@@ -35,16 +37,30 @@ app.delete("/api/persons/:id", (request, response) => {
 });
 
 app.post("/api/persons", (request, response) => {
+  const body = request.body;
+
+  if (!body.name) {
+    return response.status(400).json({
+      error: "name missing",
+    });
+  } else if (!body.number) {
+    return response.status(400).json({
+      error: "phone number missing",
+    });
+  }
+
   /* 
   1000 is arbitrary "large" number to use a big enough range for random values so likelihood of creating duplicate ids is small
   can probably make a helper function to generate id although code is a single Math.random call
   */
   const id = Math.floor(Math.random() * 1000);
+
   const person = {
     id,
-    name: request.body.name,
-    number: request.body.number,
+    name: body.name,
+    number: body.number,
   };
+
   persons = persons.concat(person);
 
   response.json(person);
