@@ -93,19 +93,6 @@ app.post("/api/persons", (request, response) => {
       error: "phone number missing",
     });
   }
-  // } else if (
-  //   persons.find((person) => person.name === body.name) !== undefined
-  // ) {
-  //   return response.status(400).json({
-  //     error: "name must be unique",
-  //   });
-  // }
-
-  /* 
-  1000 is arbitrary "large" number to use a big enough range for random values so likelihood of creating duplicate ids is small
-  can probably make a helper function to generate id although code is a single Math.random call
-  */
-  const id = Math.floor(Math.random() * 1000);
 
   const person = new Person({
     name: body.name,
@@ -117,10 +104,27 @@ app.post("/api/persons", (request, response) => {
   });
 });
 
+app.put("/api/persons/:id", (request, response, next) => {
+  const body = request.body;
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => next(error));
+});
+
 app.get("/info", (request, response) => {
-  response.send(
-    `<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`
-  );
+  Person.countDocuments({}, (err, count) => {
+    response.send(
+      `<p>Phonebook has info for ${count} people</p><p>${new Date()}</p>`
+    );
+  });
 });
 
 const unknownEndpoint = (request, response) => {
